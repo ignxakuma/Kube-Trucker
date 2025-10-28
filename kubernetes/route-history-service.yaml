@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: route-history-service-deployment
+  labels:
+    app: route-history-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: route-history-service
+  template:
+    metadata:
+      labels:
+        app: route-history-service
+    spec:
+      containers:
+        - name: route-history-service
+          image: route-history-service:latest # We will build this image locally
+          imagePullPolicy: Never # Use 'Never' for local images
+          ports:
+            - containerPort: 3002
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: DB_HOST
+              value: postgres-service # Kubernetes service name for PostgreSQL
+            - name: DB_PORT
+              value: "5432"
+            - name: PORT
+              value: "3002"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: route-history-service
+  labels:
+    app: route-history-service
+spec:
+  selector:
+    app: route-history-service
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3002
+  type: ClusterIP

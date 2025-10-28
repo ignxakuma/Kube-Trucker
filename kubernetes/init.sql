@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS truck_locations (
+    id SERIAL PRIMARY KEY,
+    truck_id VARCHAR(255) NOT NULL,
+    latitude DECIMAL(9, 6) NOT NULL,
+    longitude DECIMAL(9, 6) NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

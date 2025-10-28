@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-service-deployment
+  labels:
+    app: frontend-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-service
+  template:
+    metadata:
+      labels:
+        app: frontend-service
+    spec:
+      containers:
+        - name: frontend-service
+          image: frontend-service:latest # We will build this image locally
+          imagePullPolicy: Never # Use 'Never' for local images
+          ports:
+            - containerPort: 80
+          env:
+            # Assuming the React app will need to know the backend API URL
+            # In a real scenario, this might be handled by an Ingress or a more sophisticated config
+            - name: REACT_APP_ROUTE_HISTORY_API_URL
+              value: http://route-history-service:3002/history
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  labels:
+    app: frontend-service
+spec:
+  selector:
+    app: frontend-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30000 # Expose on a high port for local access
+  type: NodePort
